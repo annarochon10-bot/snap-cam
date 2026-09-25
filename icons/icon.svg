@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff6fb0"/>
+      <stop offset="0.55" stop-color="#ff2e93"/>
+      <stop offset="1" stop-color="#c400ff"/>
+    </linearGradient>
+    <linearGradient id="ghostBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#fbeaf3"/>
+    </linearGradient>
+    <radialGradient id="sheen" cx="0.3" cy="0.15" r="0.9">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- App icon background -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect width="512" height="512" rx="112" fill="url(#sheen)"/>
+
+  <!-- Ghost silhouette with leopard ears -->
+  <g>
+    <!-- ears -->
+    <path d="M158 168 C150 130 172 100 202 96 C190 120 188 146 196 172 Z" fill="url(#ghostBody)"/>
+    <path d="M354 168 C362 130 340 100 310 96 C322 120 324 146 316 172 Z" fill="url(#ghostBody)"/>
+
+    <!-- body -->
+    <path d="
+      M256 108
+      C 190 108 138 160 138 228
+      L 138 360
+      C 138 360 158 338 178 360
+      C 198 382 214 382 234 360
+      C 250 344 262 344 278 360
+      C 298 382 314 382 334 360
+      C 354 338 374 360 374 360
+      L 374 228
+      C 374 160 322 108 256 108
+      Z"
+      fill="url(#ghostBody)"/>
+
+    <!-- leopard spots -->
+    <g fill="#3a1030" opacity="0.88">
+      <ellipse cx="196" cy="168" rx="10" ry="8"/>
+      <ellipse cx="228" cy="148" rx="8" ry="6.5"/>
+      <ellipse cx="284" cy="150" rx="9" ry="7"/>
+      <ellipse cx="316" cy="172" rx="10" ry="8"/>
+      <ellipse cx="336" cy="220" rx="9" ry="7"/>
+      <ellipse cx="176" cy="222" rx="9" ry="7"/>
+      <ellipse cx="204" cy="260" rx="8" ry="6.5"/>
+      <ellipse cx="308" cy="264" rx="8" ry="6.5"/>
+      <ellipse cx="256" cy="190" rx="7" ry="5.5"/>
+      <ellipse cx="256" cy="300" rx="8" ry="6"/>
+      <ellipse cx="188" cy="320" rx="7" ry="5.5"/>
+      <ellipse cx="326" cy="320" rx="7" ry="5.5"/>
+    </g>
+    <g fill="none" stroke="#3a1030" stroke-width="3" opacity="0.75">
+      <path d="M240 210 q6 -8 12 0 q6 8 -6 8 q-12 0 -6 -8 z"/>
+      <path d="M272 236 q6 -8 12 0 q6 8 -6 8 q-12 0 -6 -8 z"/>
+      <path d="M216 250 q5 -7 10 0 q5 7 -5 7 q-10 0 -5 -7 z"/>
+      <path d="M300 210 q5 -7 10 0 q5 7 -5 7 q-10 0 -5 -7 z"/>
+    </g>
+
+    <!-- face -->
+    <ellipse cx="216" cy="236" rx="13" ry="16" fill="#2b0a24"/>
+    <ellipse cx="296" cy="236" rx="13" ry="16" fill="#2b0a24"/>
+    <ellipse cx="221" cy="229" rx="4.5" ry="5.5" fill="#ffffff"/>
+    <ellipse cx="301" cy="229" rx="4.5" ry="5.5" fill="#ffffff"/>
+  </g>
+</svg>
