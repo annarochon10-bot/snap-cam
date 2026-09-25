@@ -38,6 +38,7 @@
   let mediaRecorder = null;
   let recordedChunks = [];
   let isRecording = false;
+  let captureBusy = false; // true for the whole press gesture, from finger-down to release
   let holdTimer = null;
   let pressStartTime = 0;
   let longPressFired = false;
@@ -176,7 +177,7 @@
   let lastTapTime = 0;
   let lastTapX = 0, lastTapY = 0;
   videoWrap.addEventListener('pointerup', (e) => {
-    if (isRecording) return;
+    if (isRecording || captureBusy) return;
     const now = Date.now();
     const dx = Math.abs(e.clientX - lastTapX);
     const dy = Math.abs(e.clientY - lastTapY);
@@ -190,8 +191,8 @@
     }
   });
 
-  flipBtn.addEventListener('click', () => { if (!isRecording) flipCamera(); });
-  switchCameraBtn.addEventListener('click', () => { if (!isRecording) flipCamera(); });
+  flipBtn.addEventListener('click', () => { if (!isRecording && !captureBusy) flipCamera(); });
+  switchCameraBtn.addEventListener('click', () => { if (!isRecording && !captureBusy) flipCamera(); });
 
   // ---------- Capture button: tap = photo, hold = video ----------
   const HOLD_THRESHOLD = 280;
@@ -202,6 +203,7 @@
       try { captureBtn.setPointerCapture(e.pointerId); } catch (_) {}
     }
     captureBtn.classList.add('pressed');
+    captureBusy = true;
     pressStartTime = Date.now();
     longPressFired = false;
     hint.classList.add('hidden');
@@ -220,6 +222,7 @@
     } else if (!longPressFired) {
       takePhoto();
     }
+    captureBusy = false;
   }
 
   captureBtn.addEventListener('pointerdown', onPressStart);
@@ -237,9 +240,13 @@
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext('2d');
-    // Save the true (non-mirrored) orientation regardless of camera facing,
-    // matching how videos are recorded and how normal camera apps behave —
-    // only the live preview is mirrored for selfie comfort, not the file.
+    // Save the photo mirrored the same way the front-camera preview is, so
+    // the saved shot matches exactly what was on screen when the shutter
+    // was tapped (same convention as Snapchat / iPhone selfies).
+    if (facing === 'user') {
+      ctx.translate(canvas.width, 0);
+      ctx.scale(-1, 1);
+    }
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     canvas.toBlob(async (blob) => {
