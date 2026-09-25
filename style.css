@@ -11,7 +11,11 @@
   color-scheme: dark;
 }
 
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
 
 html, body {
   margin: 0;
@@ -75,6 +79,9 @@ body {
   inset: 0;
   overflow: hidden;
   background: #000;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 #video {
@@ -242,6 +249,9 @@ body {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 #capture-ring {

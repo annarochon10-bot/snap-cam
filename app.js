@@ -109,11 +109,18 @@
   }
 
   // ---------- Camera ----------
+  const AUDIO_CONSTRAINTS = {
+    echoCancellation: true,
+    noiseSuppression: true,
+    autoGainControl: true,
+  };
+
   async function startCamera(preferredFacing) {
     stopStream();
     const constraintsList = [
-      { video: { facingMode: { exact: preferredFacing } }, audio: true },
-      { video: { facingMode: preferredFacing }, audio: true },
+      { video: { facingMode: { exact: preferredFacing } }, audio: AUDIO_CONSTRAINTS },
+      { video: { facingMode: preferredFacing }, audio: AUDIO_CONSTRAINTS },
+      { video: true, audio: AUDIO_CONSTRAINTS },
       { video: true, audio: true },
     ];
     let lastErr = null;
@@ -163,24 +170,25 @@
   }
 
   // ---------- Double tap to flip ----------
+  // Single pointerup-based detector (covers touch AND mouse) so a fast
+  // double-tap can't also fire a native "dblclick", which used to call
+  // flipCamera() twice in a row and cancel itself out.
   let lastTapTime = 0;
   let lastTapX = 0, lastTapY = 0;
-  videoWrap.addEventListener('touchend', (e) => {
+  videoWrap.addEventListener('pointerup', (e) => {
     if (isRecording) return;
     const now = Date.now();
-    const touch = e.changedTouches[0];
-    const dx = touch ? Math.abs(touch.clientX - lastTapX) : 0;
-    const dy = touch ? Math.abs(touch.clientY - lastTapY) : 0;
-    if (now - lastTapTime < 300 && dx < 40 && dy < 40) {
+    const dx = Math.abs(e.clientX - lastTapX);
+    const dy = Math.abs(e.clientY - lastTapY);
+    if (now - lastTapTime < 400 && dx < 50 && dy < 50) {
       flipCamera();
       lastTapTime = 0;
     } else {
       lastTapTime = now;
-      if (touch) { lastTapX = touch.clientX; lastTapY = touch.clientY; }
+      lastTapX = e.clientX;
+      lastTapY = e.clientY;
     }
   });
-  // Desktop fallback
-  videoWrap.addEventListener('dblclick', () => { if (!isRecording) flipCamera(); });
 
   flipBtn.addEventListener('click', () => { if (!isRecording) flipCamera(); });
   switchCameraBtn.addEventListener('click', () => { if (!isRecording) flipCamera(); });
@@ -229,13 +237,10 @@
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext('2d');
-    ctx.save();
-    if (facing === 'user') {
-      ctx.translate(canvas.width, 0);
-      ctx.scale(-1, 1);
-    }
+    // Save the true (non-mirrored) orientation regardless of camera facing,
+    // matching how videos are recorded and how normal camera apps behave —
+    // only the live preview is mirrored for selfie comfort, not the file.
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    ctx.restore();
 
     canvas.toBlob(async (blob) => {
       if (!blob) return;
@@ -264,13 +269,22 @@
   function startRecording() {
     if (!currentStream || isRecording) return;
     const mimeType = pickMimeType();
+    const options = {
+      ...(mimeType ? { mimeType } : {}),
+      audioBitsPerSecond: 128000,
+      videoBitsPerSecond: 4000000,
+    };
     try {
-      mediaRecorder = mimeType
-        ? new MediaRecorder(currentStream, { mimeType })
-        : new MediaRecorder(currentStream);
+      mediaRecorder = new MediaRecorder(currentStream, options);
     } catch (err) {
-      console.error('MediaRecorder init failed', err);
-      return;
+      try {
+        mediaRecorder = mimeType
+          ? new MediaRecorder(currentStream, { mimeType })
+          : new MediaRecorder(currentStream);
+      } catch (err2) {
+        console.error('MediaRecorder init failed', err2);
+        return;
+      }
     }
     recordedChunks = [];
     mediaRecorder.ondataavailable = (e) => {
